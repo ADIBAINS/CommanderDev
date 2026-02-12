@@ -1,0 +1,117 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { Incident } from "@/lib/types"
+import { SeverityBadge } from "@/components/SeverityBadge"
+import { RiskMeter } from "@/components/RiskMeter"
+import { SignalList } from "@/components/SignalList"
+import { IncidentCard } from "@/components/IncidentCard" // Explanation card
+import { Button } from "@/components/ui/button"
+import { ArrowLeft, Calendar, Loader2 } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+export default function IncidentDetailsPage() {
+    const { id } = useParams()
+    const router = useRouter()
+    const [incident, setIncident] = useState<Incident | null>(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        if (!id) return
+        const fetchIncident = async () => {
+            try {
+                const res = await fetch(`/api/incidents/${id}`)
+                if (!res.ok) throw new Error("Incident not found")
+                const data = await res.json()
+                setIncident(data)
+            } catch (error) {
+                console.error(error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchIncident()
+    }, [id])
+
+    if (loading) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+            </div>
+        )
+    }
+
+    if (!incident) {
+        return (
+            <div className="flex flex-col h-screen items-center justify-center gap-4">
+                <h1 className="text-2xl font-bold text-zinc-100">Incident Not Found</h1>
+                <Button onClick={() => router.push("/dashboard")}>Back to Dashboard</Button>
+            </div>
+        )
+    }
+
+    return (
+        <div className="container mx-auto px-4 py-8 max-w-5xl space-y-8">
+            <Button
+                variant="ghost"
+                className="text-zinc-400 hover:text-zinc-100 pl-0 hover:bg-transparent"
+                onClick={() => router.push("/dashboard")}
+            >
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+            </Button>
+
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-zinc-100 mb-2">{incident.type}</h1>
+                    <div className="flex items-center gap-3 text-sm text-zinc-400">
+                        <SeverityBadge severity={incident.severity} />
+                        <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(incident.createdAt).toLocaleString()}
+                        </span>
+                        <span className="bg-zinc-800 px-2 py-0.5 rounded text-xs">
+                            ID: {incident.id}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Risk Score Highlight */}
+                <Card className="bg-zinc-900 border-zinc-800 w-full md:w-64">
+                    <CardContent className="pt-6">
+                        <RiskMeter score={incident.riskScore} />
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Left Column: Signals & Metadata */}
+                <div className="space-y-6">
+                    <Card className="bg-zinc-900 border-zinc-800">
+                        <CardHeader>
+                            <CardTitle className="text-base text-zinc-300">Detected Signals</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <SignalList signals={incident.signals} />
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Right Column: AI Analysis */}
+                <div className="md:col-span-2 space-y-6">
+                    <IncidentCard explanation={incident.explanation} />
+
+                    {/* Actions Placeholder */}
+                    <div className="flex gap-4">
+                        <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
+                            Generate Post-Mortem
+                        </Button>
+                        <Button variant="outline" className="w-full border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                            Share Report
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
