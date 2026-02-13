@@ -17,7 +17,7 @@ export function RiskMeter({ score, className }: RiskMeterProps) {
         <div className={cn("space-y-2", className)}>
             <div className="flex justify-between text-sm">
                 <span className="text-zinc-400">Risk Score</span>
-                <span className={cn("font-bold", colorClass.replace("bg-", "text-"))}>
+                <span className={cn("font-bold tabular-nums", colorClass.replace("bg-", "text-"))}>
                     {score}/100
                 </span>
             </div>

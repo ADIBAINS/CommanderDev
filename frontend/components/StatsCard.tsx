@@ -18,7 +18,7 @@ export function StatsCard({ title, value, description, icon: Icon }: StatsCardPr
                 <Icon className="h-4 w-4 text-zinc-500" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-zinc-100">{value}</div>
+                <div className="text-3xl font-bold text-white tabular-nums tracking-tight">{value}</div>
                 {description && (
                     <p className="text-xs text-zinc-500 mt-1">
                         {description}

@@ -50,7 +50,7 @@ export function IncidentsTable({ incidents }: IncidentsTableProps) {
                                 {incident.riskScore}/100
                             </TableCell>
                             <TableCell>
-                                <Badge variant="secondary" className="bg-zinc-800 text-zinc-400">
+                                <Badge variant="secondary" className="bg-zinc-800 text-zinc-200 font-medium tabular-nums min-w-[2rem] justify-center">
                                     {incident.signals.reduce((acc, curr) => acc + curr.count, 0)}
                                 </Badge>
                             </TableCell>
