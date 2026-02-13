@@ -23,6 +23,14 @@ export interface AnalyzeResponse {
   createdAt: string;
 }
 
+/** GET not allowed; use POST with body { logs: string[] } */
+export async function GET() {
+  return NextResponse.json(
+    { error: "Method not allowed. Use POST with body: { logs: string[] }" },
+    { status: 405, headers: { Allow: "POST" } }
+  );
+}
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as AnalyzeRequestBody;
