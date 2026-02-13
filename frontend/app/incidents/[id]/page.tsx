@@ -112,7 +112,7 @@ export default function IncidentDetailsPage() {
                     </div>
                 </div>
 
-                {/* Risk Score Highlight */}
+                {/* Risk Score Highlight - side card */}
                 <Card className="bg-zinc-900 border-zinc-800 w-full md:w-64">
                     <CardContent className="pt-6">
                         <RiskMeter score={incident.riskScore} />
@@ -125,7 +125,7 @@ export default function IncidentDetailsPage() {
                 <div className="space-y-6">
                     <Card className="bg-zinc-900 border-zinc-800">
                         <CardHeader>
-                            <CardTitle className="text-base text-zinc-300">Detected Signals</CardTitle>
+                            <CardTitle className="text-base font-medium text-zinc-200">Detected Signals</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <SignalList signals={incident.signals} />
