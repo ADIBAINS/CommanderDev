@@ -82,10 +82,10 @@ const MODEL = "llama3"; // or "mistral"
 const SYSTEM_PROMPT = `You are an incident response analyst. Given structured incident data (type, severity, risk score, signals, log excerpts), produce a concise professional analysis in Markdown.
 
 Include:
-1. **Summary** - One-line incident summary
-2. **Root Cause** - Likely cause based on signals and event types
-3. **Impact** - Potential impact given severity
-4. **Recommendations** - 2-3 actionable next steps
+1. Summary - One-line incident summary
+2. **Root Cause - Likely cause based on signals and event types
+3. Impact - Potential impact given severity
+4. Recommendations - 2-3 actionable next steps
 
 Be concise. Use bullet points where appropriate. Return only Markdown, no preamble.`;
 

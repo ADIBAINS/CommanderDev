@@ -7,7 +7,8 @@ type Rule = {
   condition: (s: Signal) => boolean;
 };
 
-const RULES: Rule[] = [
+/** Strict rules: higher thresholds for confident classification */
+const STRICT_RULES: Rule[] = [
   {
     name: "DATABASE_DEGRADATION",
     condition: (s) =>
@@ -39,11 +40,56 @@ const RULES: Rule[] = [
   },
 ];
 
+/** Fallback rules: lower thresholds when strict rules don't match */
+const FALLBACK_RULES: Rule[] = [
+  {
+    name: "DATABASE_DEGRADATION",
+    condition: (s) => s.eventTypeFrequencies.DB_TIMEOUT >= 1,
+  },
+  {
+    name: "AUTHENTICATION_BREACH",
+    condition: (s) => s.eventTypeFrequencies.AUTH_FAILURE >= 1,
+  },
+  {
+    name: "CONNECTIVITY_ISSUE",
+    condition: (s) =>
+      s.eventTypeFrequencies.CONNECTION_ERROR >= 1 || s.errorSpikeCount >= 1,
+  },
+  {
+    name: "SERVICE_OVERLOAD",
+    condition: (s) =>
+      s.eventTypeFrequencies.RATE_LIMIT >= 1 ||
+      (s.eventTypeFrequencies.SERVER_ERROR >= 1 && s.errorSpikeCount >= 1),
+  },
+  {
+    name: "DATA_INTEGRITY",
+    condition: (s) => s.eventTypeFrequencies.VALIDATION_ERROR >= 1,
+  },
+  {
+    name: "INFRASTRUCTURE_FAILURE",
+    condition: (s) => s.eventTypeFrequencies.SERVER_ERROR >= 1,
+  },
+  {
+    name: "INFRASTRUCTURE_FAILURE",
+    condition: (s) => {
+      const totalEvents = Object.values(s.eventTypeFrequencies).reduce(
+        (a, b) => a + b,
+        0
+      );
+      return totalEvents > 0 || s.errorSpikeCount > 0;
+    },
+  },
+];
+
 /**
  * Applies rules to signals and returns the first matching incident type.
+ * Uses strict rules first, then fallback rules with lower thresholds.
  */
 export function applyRules(signals: Signal): IncidentType {
-  for (const rule of RULES) {
+  for (const rule of STRICT_RULES) {
+    if (rule.condition(signals)) return rule.name;
+  }
+  for (const rule of FALLBACK_RULES) {
     if (rule.condition(signals)) return rule.name;
   }
   return "UNKNOWN_INCIDENT";
